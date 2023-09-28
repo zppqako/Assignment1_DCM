@@ -1,2 +1,2 @@
 # Assignment1_DCM
- UI
+ for UI main function: please check main.py
