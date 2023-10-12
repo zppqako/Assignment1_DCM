@@ -1,6 +1,7 @@
 import customtkinter
 import hashlib
-#import serial
+import serial
+import serial.tools.list_ports
 from tkinter import messagebox
 
 customtkinter.set_appearance_mode("dark")
@@ -12,6 +13,9 @@ root.geometry("700x400")
 
 users = {}
 
+users_len = 0
+
+
 def show_login_page():
     register_page.pack_forget()
     mode_page.pack_forget()
@@ -20,10 +24,25 @@ def show_login_page():
     AAI_page.pack_forget()
     VVI_page.pack_forget()
     login_page.pack()
+
 def save_users():
+
     with open("users.txt", 'w') as file:
         for username, password in users.items():
             file.write(f"{username}:{password}\n")
+
+    with open("users.txt", 'r') as file:
+        lines = file.readlines()
+
+    if len(lines) > 5:
+        lines = lines[:5]
+        messagebox.showerror('Error', 'Number of users has exceed 5')
+
+        with open("users.txt", "w") as file:
+            file.writelines(lines)
+    else:
+        messagebox.showinfo('Success', 'Account has been created successfully.')
+
     register_page.pack_forget()
     mode_page.pack_forget()
     login_page.pack()
@@ -52,10 +71,10 @@ def confirm():
         messagebox.showerror('Error', 'Username already exists.')
         register_page.pack()
         return
+
     hashed_password = hashlib.sha256(password.encode()).hexdigest()
     users[username] = hashed_password
     save_users()
-    messagebox.showinfo('Success', 'Account has been created successfully.')
     new_username.delete(0, 'end')
     new_password.delete(0, 'end')
     register_page.pack_forget()
@@ -69,7 +88,6 @@ def register():
     mode_page.pack_forget()
     AOO_page.pack_forget()
     register_page.pack()
-
 
 def login():
     username = login_username.get()
@@ -119,6 +137,8 @@ def clear_entry():
 
 
 def user_log_out():
+    login_username.delete(0, 'end')
+    login_password.delete(0, 'end')
     show_login_page()
     clear_entry()
 def back_r():
@@ -444,8 +464,8 @@ def VVI():
 login_page = customtkinter.CTkFrame(master=root)
 login_page.pack(pady=20, padx=60, fill="both", expand=True)
 
-label = customtkinter.CTkLabel(master=login_page, text="Pacemaker Login System", font=('Arial', 18))
-label.pack(pady=12, padx=10)
+login_label = customtkinter.CTkLabel(master=login_page, text="Pacemaker Login System", font=('Arial', 18))
+login_label.pack(pady=12, padx=10)
 
 login_username = customtkinter.CTkEntry(master=login_page, placeholder_text="Username")
 login_username.pack(pady=12, padx=10)
@@ -456,7 +476,7 @@ login_password.pack(pady=12, padx=10)
 login_button = customtkinter.CTkButton(master=login_page, command = login, text="Login", cursor ='hand2')
 login_button.pack(pady=12, padx=10)
 
-register_button = customtkinter.CTkButton(master=login_page, command = register, text="Register", cursor ='hand2')
+register_button = customtkinter.CTkButton(master=login_page, command = register, text="Register here", cursor ='hand2')
 register_button.pack(pady=12, padx=10)
 
 
@@ -467,6 +487,9 @@ register_button.pack(pady=12, padx=10)
 # register page
 register_page = customtkinter.CTkFrame(master=root)
 register_page.pack(pady=20, padx=60)#, fill="both", expand = True)
+# register label
+register_label = customtkinter.CTkLabel(master=register_page, text="Registration", font=('Arial', 18))
+register_label.pack(pady=12, padx=10)
 # new user name entry
 new_username = customtkinter.CTkEntry(master=register_page, placeholder_text="New Username")
 new_username.pack(pady=12, padx=10)
