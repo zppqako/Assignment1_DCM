@@ -1,8 +1,11 @@
 import customtkinter
 import hashlib
 import serial
-import serial.tools.list_ports
+#import serial.tools.list_ports
 from tkinter import messagebox
+import time
+import threading
+import tkinter as tk
 
 customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("dark-blue")
@@ -34,9 +37,9 @@ def save_users():
     with open("users.txt", 'r') as file:
         lines = file.readlines()
 
-    if len(lines) > 5:
-        lines = lines[:5]
-        messagebox.showerror('Error', 'Number of users has exceed 5')
+    if len(lines) > 10:
+        lines = lines[:10]
+        messagebox.showerror('Error', 'Number of users has exceed 10')
 
         with open("users.txt", "w") as file:
             file.writelines(lines)
@@ -112,6 +115,7 @@ def login():
         messagebox.showerror('Error', 'Password is not correct.')
         login_password.delete(0, 'end')
         login_page.pack()
+
 def clear_entry():
     AOO_LRL.delete(0,'123')
     AOO_URL.delete(0,'end')
@@ -212,12 +216,13 @@ def submit_aoo():
     elif out_of_range:
         messagebox.showerror("Error", "Input parameter is out of range")
     else:
-        messagebox.showinfo("Success","Successfully submit!")
         with open('user_inputs.txt','w') as file:
             file.write(f"lower limit rate:{aoo_lrl} \n")
             file.write(f"upper limit rate:{aoo_url} \n")
             file.write(f"atrial amplitude:{aoo_aa} \n")
             file.write(f"atrial pulse width:{aoo_apw} \n")
+        if refresh() == 1:
+            messagebox.showinfo("Success", "Successfully submit!")
 
 
 def submit_voo():
@@ -276,12 +281,13 @@ def submit_voo():
     elif out_of_range:
         messagebox.showerror("Error", "Input parameter is out of range")
     else:
-        messagebox.showinfo("Success","Successfully submit!")
         with open('user_inputs.txt','w') as file:
             file.write(f"lower limit rate:{voo_lrl} \n")
             file.write(f"upper limit rate:{voo_lrl} \n")
             file.write(f"ventricular amplitude:{voo_va} \n")
             file.write(f"ventricular pulse width:{voo_vpw} \n")
+        if refresh() == 1:
+            messagebox.showinfo("Success", "Successfully submit!")
 
 
 def submit_aai():
@@ -351,13 +357,14 @@ def submit_aai():
     elif out_of_range:
         messagebox.showerror("Error", "Input parameter is out of range")
     else:
-        messagebox.showinfo("Success","Successfully submit!")
         with open('user_inputs.txt','w') as file:
             file.write(f"lower limit rate:{aai_lrl} \n")
             file.write(f"upper limit rate:{aai_url} \n")
             file.write(f"atrial amplitude:{aai_aa} \n")
             file.write(f"atrial pulse width:{aai_apw} \n")
             file.write(f"atrial refactory period:{aai_arp} \n")
+        if refresh() == 1:
+            messagebox.showinfo("Success", "Successfully submit!")
 
 
 
@@ -428,13 +435,15 @@ def submit_vvi():
     elif out_of_range:
         messagebox.showerror("Error", "Input parameter is out of range")
     else:
-        messagebox.showinfo("Success","Successfully submit!")
         with open('user_inputs.txt','w') as file:
             file.write(f"lower limit rate:{vvi_lrl} \n")
             file.write(f"upper limit rate:{vvi_url} \n")
             file.write(f"ventricular amplitude:{vvi_va} \n")
             file.write(f"ventricular pulse width:{vvi_vpw} \n")
             file.write(f"ventricular refactory period:{vvi_vrp} \n")
+        if refresh() == 1:
+            messagebox.showinfo("Success", "Successfully submit!")
+
 
 
 
@@ -460,6 +469,17 @@ def VVI():
     register_page.forget()
     VVI_page.pack()
 
+def refresh():
+    try:
+        ser = serial.Serial('COM3', 9600, timeout=0)
+        if ser.is_open:
+            messagebox.showinfo("Success", "Communicating")
+            return 1
+    except:
+        messagebox.showerror("Error", "Serial port COM3 is not open")
+        return 0
+
+
 # login page
 login_page = customtkinter.CTkFrame(master=root)
 login_page.pack(pady=20, padx=60, fill="both", expand=True)
@@ -478,10 +498,6 @@ login_button.pack(pady=12, padx=10)
 
 register_button = customtkinter.CTkButton(master=login_page, command = register, text="Register here", cursor ='hand2')
 register_button.pack(pady=12, padx=10)
-
-
-
-
 
 
 # register page
@@ -505,10 +521,6 @@ back_r_button.pack(pady=12, padx=10)
 
 
 
-
-
-
-
 # mode page
 mode_page = customtkinter.CTkFrame(master=root)
 mode_page.pack(pady=20, padx=60)#, fill="both", expand = True)
@@ -527,6 +539,7 @@ AAI_button.pack(pady=12,padx=10)
 #VVI mode
 VVI_button = customtkinter.CTkButton(master=mode_page, text="VVI", command=VVI)
 VVI_button.pack(pady=12,padx=10)
+
 #back to login page from mode page
 log_out = customtkinter.CTkButton(master=mode_page, text="Log out", command=user_log_out)
 log_out.pack(pady=20, padx=10)
