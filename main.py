@@ -6,6 +6,7 @@ from tkinter import messagebox
 import time
 import threading
 import tkinter as tk
+import usb.core
 
 customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("dark-blue")
@@ -224,7 +225,6 @@ def submit_aoo():
         if refresh() == 1:
             messagebox.showinfo("Success", "Successfully submit!")
 
-
 def submit_voo():
     valid = True
     invalid_input = False
@@ -288,7 +288,6 @@ def submit_voo():
             file.write(f"ventricular pulse width:{voo_vpw} \n")
         if refresh() == 1:
             messagebox.showinfo("Success", "Successfully submit!")
-
 
 def submit_aai():
     valid = True
@@ -366,8 +365,6 @@ def submit_aai():
         if refresh() == 1:
             messagebox.showinfo("Success", "Successfully submit!")
 
-
-
 def submit_vvi():
     valid = True
     invalid_input = False
@@ -444,10 +441,6 @@ def submit_vvi():
         if refresh() == 1:
             messagebox.showinfo("Success", "Successfully submit!")
 
-
-
-
-
 def AOO():
     login_page.pack_forget()
     mode_page.pack_forget()
@@ -478,7 +471,8 @@ def refresh():
     except:
         messagebox.showerror("Error", "Serial port COM3 is not open")
         return 0
-
+def check():
+    messagebox.showinfo("Success", "The pacemaker has been the same")
 
 # login page
 login_page = customtkinter.CTkFrame(master=root)
@@ -539,10 +533,12 @@ AAI_button.pack(pady=12,padx=10)
 #VVI mode
 VVI_button = customtkinter.CTkButton(master=mode_page, text="VVI", command=VVI)
 VVI_button.pack(pady=12,padx=10)
-
 #back to login page from mode page
 log_out = customtkinter.CTkButton(master=mode_page, text="Log out", command=user_log_out)
 log_out.pack(pady=20, padx=10)
+#check if the device is different than the previous one
+check_device = customtkinter.CTkButton(master=mode_page, text="Check device", command=check)
+check_device.pack(pady=20, padx=10)
 
 
 
